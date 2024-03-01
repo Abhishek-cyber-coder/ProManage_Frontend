@@ -1,0 +1,44 @@
+.statusBoard {
+  position: relative;
+  flex: 0 0 30%;
+  height: 77vh;
+  margin: 1rem;
+  padding: 0 10px 20px 20px;
+  /* padding: 0; */
+  box-sizing: border-box;
+  border-radius: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #eef2f5;
+}
+
+.topOfTheBoard {
+  background-color: #eef2f5;
+  position: sticky;
+  top: 0;
+  /* left: 0; */
+  /* padding: 1rem 2rem 0; */
+  /* width: 100%; */
+  /* padding-top: 1rem; */
+  /* gap: 11rem; */
+  display: flex;
+  justify-content: space-between;
+  z-index: 3;
+  height: 50px;
+  align-items: center;
+  padding-top: 10px;
+}
+
+.topOfTheBoard > p {
+  font-family: var(--poppins-fontFamily);
+  font-weight: 500;
+  font-size: 1rem;
+  margin-left: 2px;
+}
+
+.topOfTheBoard > div {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-right: 5px;
+}
