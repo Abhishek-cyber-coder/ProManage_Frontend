@@ -76,7 +76,7 @@ function Register() {
         localStorage.setItem("usernamePro", response.username);
         toast.success(response.message);
         setTimeout(() => {
-          navigate("/board");
+          navigate("/");
         }, 2000);
       } else if (response?.success === false) {
         toast.error(response?.message);

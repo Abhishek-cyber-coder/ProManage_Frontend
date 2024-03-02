@@ -1,5 +1,5 @@
 import axios from "axios";
-const backendUrl = "http://localhost:3010/api/v1/tasks";
+const backendUrl = `${import.meta.env.REACT_APP_BACKEND_URL}/tasks`;
 
 export const getAnalyticsData = async () => {
   try {

@@ -57,9 +57,9 @@ function SideNav() {
           <p>Pro Manage</p>
         </div>
         <div
-          onClick={() => navigate("/board")}
+          onClick={() => navigate("/")}
           className={
-            location.pathname === "/board"
+            location.pathname === "/"
               ? `${styles.iconPlusText} ${styles.pageBtn} ${styles.active}`
               : `${styles.iconPlusText} ${styles.pageBtn}`
           }
