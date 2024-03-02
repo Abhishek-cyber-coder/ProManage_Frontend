@@ -1,17 +1,39 @@
 import React, { useContext, useEffect, useState } from "react";
-import styles from "./TaskAddModal.module.css";
+import styles from "./TaskEditModal.module.css";
 import deleteIcon from "../../assets/icons/delete.svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast, { Toaster } from "react-hot-toast";
-import { createTask } from "../../apis/task";
+import { editTaskById, getTaskDescription } from "../../apis/task";
 import MyContext from "../ContextApi/MyContext";
-function TaskAddModal({ isOpen, onClose }) {
+function TaskEditModal({ isOpen, onClose }) {
+  const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("");
   const [checklist, setChecklist] = useState([]);
+  const [status, setStatus] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const { fetchTasks } = useContext(MyContext);
+  const { fetchTasks, delatableTaskId } = useContext(MyContext);
+
+  useEffect(() => {
+    fetchTaskDetailsById();
+  }, [delatableTaskId]);
+
+  const fetchTaskDetailsById = async () => {
+    const taskId = delatableTaskId;
+
+    if (!taskId) return;
+
+    const response = await getTaskDescription(taskId);
+    setTitle(response?.title);
+    setPriority(response?.priority);
+    setChecklist(response?.checklist);
+    setDueDate(response?.dueDate);
+    setStatus(response?.status);
+    setLoading(false);
+
+    if (!isOpen || loading) return null;
+  };
 
   const handleAddChecklistItem = () => {
     const newItem = { name: "", selected: false };
@@ -68,14 +90,14 @@ function TaskAddModal({ isOpen, onClose }) {
     }
 
     if (valid) {
-      const taskDetails = {
+      const response = await editTaskById(
+        delatableTaskId,
         title,
         priority,
         checklist,
-        dueDate,
-      };
-
-      const response = await createTask(taskDetails);
+        status,
+        dueDate
+      );
       if (response?.success === true) {
         toast.success(response?.message);
       } else if (response?.success === false) {
@@ -83,10 +105,6 @@ function TaskAddModal({ isOpen, onClose }) {
       } else {
         toast.error("Internal Server Error");
       }
-      setTitle("");
-      setDueDate("");
-      setChecklist([]);
-      setPriority("");
       onClose();
       fetchTasks();
     }
@@ -154,7 +172,7 @@ function TaskAddModal({ isOpen, onClose }) {
               </div>
               <div className={styles.checklistSection}>
                 <p>
-                  Checklist &#40;{countSelectedItems()}/{checklist.length}&#41;
+                  Checklist &#40;{countSelectedItems()}/{checklist?.length}&#41;
                   <sup>*</sup>
                 </p>
                 <div className={styles.checklistItems}>
@@ -233,4 +251,4 @@ function TaskAddModal({ isOpen, onClose }) {
   );
 }
 
-export default TaskAddModal;
+export default TaskEditModal;

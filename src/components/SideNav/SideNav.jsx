@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import styles from "./SideNav.module.css";
+import toast, { Toaster } from "react-hot-toast";
 import codeSandBoxIcon from "../../assets/icons/codeSandBox.svg";
 import layoutIcon from "../../assets/icons/layout.svg";
 import logoutIcon from "../../assets/icons/logout.svg";
 import settingsIcon from "../../assets/icons/settings.svg";
 import databaseIcon from "../../assets/icons/database.svg";
 import { useLocation, useNavigate } from "react-router-dom";
-import LogoutModal from "../LogoutModal/LogoutModal";
+import ActionModal from "../ActionModal/ActionModal";
 function SideNav() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,6 +20,33 @@ function SideNav() {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const logoutToast = () =>
+    toast.promise(
+      // Promise to logout
+      new Promise((resolve, reject) => {
+        localStorage.removeItem("tokenPro");
+        localStorage.removeItem("usernamePro");
+        setTimeout(() => {
+          resolve();
+        }, 1000);
+      }),
+      {
+        loading: "Logging out...",
+        success: "Logged out successfully",
+        error: "Failed to log out",
+      }
+    );
+
+  const handleLogout = () => {
+    logoutToast()
+      .then(() => {
+        navigate("/login");
+      })
+      .catch(() => {
+        toast.error("Failed to log out");
+      });
   };
 
   return (
@@ -69,7 +97,30 @@ function SideNav() {
         <img src={logoutIcon} alt="Icon" />
         <p>Log out</p>
       </div>
-      <LogoutModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      <ActionModal
+        name="Logout"
+        handleAction={handleLogout}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          success: {
+            style: {
+              fontSize: "1.5rem",
+              height: "3rem",
+            },
+          },
+          error: {
+            style: {
+              fontSize: "1.5rem",
+              height: "3rem",
+            },
+          },
+        }}
+      />
     </div>
   );
 }

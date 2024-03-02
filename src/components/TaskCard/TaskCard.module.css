@@ -75,12 +75,10 @@
 
 .footer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
 .optionalDate {
-  background-color: #dbdbdb;
   padding: 5px 10px;
   font-size: 10px;
   font-family: var(--poppins-fontFamily);

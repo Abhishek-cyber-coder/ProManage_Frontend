@@ -67,3 +67,21 @@
   overflow-x: scroll;
   overflow-y: hidden;
 }
+
+.lastSection::-webkit-scrollbar {
+  width: 0.8vw;
+}
+
+.lastSection::-webkit-scrollbar-track {
+  background: white;
+}
+
+.lastSection::-webkit-scrollbar-thumb {
+  background: #9cb7c5;
+  border: 1px solid white;
+  border-radius: 1rem;
+}
+
+.lastSection::-webkit-scrollbar-button {
+  display: none;
+}

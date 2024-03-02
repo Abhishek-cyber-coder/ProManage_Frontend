@@ -15,8 +15,6 @@ function CheckItem({ taskId, itemId, name, selected, onCheckboxChange }) {
     onCheckboxChange(newCheckedState);
     try {
       const response = await checkItems(taskId, itemId, newCheckedState);
-
-      console.log(response);
     } catch (error) {
       console.log(error);
     }

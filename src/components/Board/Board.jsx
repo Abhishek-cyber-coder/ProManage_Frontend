@@ -1,17 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styles from "./Board.module.css";
 import StatusBoard from "../StatusBoard/StatusBoard";
 import { getUserInfo, getCurrentDate } from "../../utils/helper";
 
-import { getTasks } from "../../apis/task";
+import MyContext from "../ContextApi/MyContext";
+import ActionModal from "../ActionModal/ActionModal";
 
 function Board() {
-  const [selectedOption, setSelectedOption] = useState("thisWeek");
   const [topPageInfo, setTopPageInfo] = useState({
     username: "",
     date: "",
   });
-  const [tasks, setTasks] = useState([]);
+  const {
+    tasks,
+    fetchTasks,
+    selectedOption,
+    setSelectedOption,
+    isDeleteModalOpen,
+    handleCloseDeleteModal,
+    handleDeleteTask,
+  } = useContext(MyContext);
 
   useEffect(() => {
     const userInfo = getUserInfo();
@@ -20,13 +28,9 @@ function Board() {
   }, []);
 
   useEffect(() => {
-    fetchAllTasks();
+    fetchTasks();
   }, [selectedOption]);
 
-  const fetchAllTasks = async () => {
-    const response = await getTasks(selectedOption);
-    setTasks(response);
-  };
   return (
     <div className={styles.mainBoardSection}>
       <div className={styles.topHeadings}>
@@ -47,26 +51,36 @@ function Board() {
       </div>
       <div className={styles.lastSection}>
         <StatusBoard
-          status="Backlog"
+          heading="Backlog"
+          status="backlog"
           plusBtn={false}
           tasks={tasks?.filter((task) => task.status === "backlog")}
         />
         <StatusBoard
-          status="To do"
+          status="todo"
+          heading="To do"
           plusBtn={true}
           tasks={tasks?.filter((task) => task.status === "todo")}
         />
         <StatusBoard
-          status="In progress"
+          status="progress"
+          heading="In progress"
           plusBtn={false}
           tasks={tasks?.filter((task) => task.status === "progress")}
         />
         <StatusBoard
-          status="Done"
+          status="done"
+          heading="Done"
           plusBtn={false}
           tasks={tasks?.filter((task) => task.status === "done")}
         />
       </div>
+      <ActionModal
+        name="Delete"
+        handleAction={handleDeleteTask}
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+      />
     </div>
   );
 }

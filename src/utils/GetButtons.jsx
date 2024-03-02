@@ -1,51 +1,55 @@
 import React from "react";
 
-function GetButtons({ status }) {
+function GetButtons({ taskId, buttonPressed, newStatus }) {
   let buttons;
-  switch (status) {
+  switch (newStatus) {
     case "backlog":
       buttons = (
         <>
-          <button onClick={() => onButtonClick(task.id, "progress")}>
+          <button onClick={() => buttonPressed(taskId, "progress")}>
             PROGRESS
           </button>
-          <button onClick={() => onButtonClick(task.id, "todo")}>TO-DO</button>
-          <button onClick={() => onButtonClick(task.id, "done")}>DONE</button>
+          <button onClick={() => buttonPressed(taskId, "todo")}>TO-DO</button>
+          <button onClick={() => buttonPressed(taskId, "done")}>DONE</button>
         </>
       );
       break;
     case "todo":
       buttons = (
         <>
-          <button onClick={() => onButtonClick(task.id, "backlog")}>
+          <button onClick={() => buttonPressed(taskId, "backlog")}>
             BACKLOG
           </button>
-          <button onClick={() => onButtonClick(task.id, "progress")}>
+          <button onClick={() => buttonPressed(taskId, "progress")}>
             PROGRESS
           </button>
-          <button onClick={() => onButtonClick(task.id, "done")}>DONE</button>
+          <button onClick={() => buttonPressed(taskId, "done")}>DONE</button>
         </>
       );
       break;
     case "progress":
-      <>
-        <button onClick={() => onButtonClick(task.id, "backlog")}>
-          BACKLOG
-        </button>
-        <button onClick={() => onButtonClick(task.id, "todo")}>TO-DO</button>
-        <button onClick={() => onButtonClick(task.id, "done")}>DONE</button>
-      </>;
+      buttons = (
+        <>
+          <button onClick={() => buttonPressed(taskId, "backlog")}>
+            BACKLOG
+          </button>
+          <button onClick={() => buttonPressed(taskId, "todo")}>TO-DO</button>
+          <button onClick={() => buttonPressed(taskId, "done")}>DONE</button>
+        </>
+      );
       break;
     case "done":
-      <>
-        <button onClick={() => onButtonClick(task.id, "backlog")}>
-          BACKLOG
-        </button>
-        <button onClick={() => onButtonClick(task.id, "todo")}>TO-DO</button>
-        <button onClick={() => onButtonClick(task.id, "progress")}>
-          PROGRESS
-        </button>
-      </>;
+      buttons = (
+        <>
+          <button onClick={() => buttonPressed(taskId, "backlog")}>
+            BACKLOG
+          </button>
+          <button onClick={() => buttonPressed(taskId, "todo")}>TO-DO</button>
+          <button onClick={() => buttonPressed(taskId, "progress")}>
+            PROGRESS
+          </button>
+        </>
+      );
       break;
     default:
       buttons = null;

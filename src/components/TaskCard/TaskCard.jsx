@@ -1,10 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import arrowDownIcon from "../../assets/icons/arrowDown.svg";
 import arrowUpIcon from "../../assets/icons/arrowUp.svg";
 import styles from "./TaskCard.module.css";
 import CheckItem from "../CheckItem/CheckItem";
 import GetButtons from "../../utils/GetButtons";
-function TaskCard({ task, collapseAll, countOfOpenChecklist, onToggle }) {
+import { moveTask } from "../../apis/task";
+import MyContext from "../ContextApi/MyContext";
+import toast, { Toaster } from "react-hot-toast";
+import { calculateColors, formatDateAsMMDD } from "../../utils/helper";
+function TaskCard({
+  task,
+  collapseAll,
+  countOfOpenChecklist,
+  onToggle,
+  status,
+}) {
+  const {
+    fetchTasks,
+    handleOpenDeleteModal,
+    setDeletableTaskId,
+    handleClickOnShare,
+    handleOpenEditModal,
+  } = useContext(MyContext);
+
   const [isToggled, setIsToggled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [taskPriority, setTaskPriority] = useState({
@@ -12,10 +30,20 @@ function TaskCard({ task, collapseAll, countOfOpenChecklist, onToggle }) {
     priority: "",
   });
   const [checkedItemCount, setCheckedItemCount] = useState(0);
+  const { backgroundColor, textColor } = calculateColors(
+    task?.dueDate,
+    task?.status
+  );
 
   const handleToggleClick = () => {
     onToggle(!isToggled);
     setIsToggled(!isToggled);
+  };
+
+  const handleMenuDotsClick = (e) => {
+    e.stopPropagation();
+    setIsMenuOpen(true);
+    setDeletableTaskId(task._id);
   };
 
   useEffect(() => {
@@ -56,8 +84,19 @@ function TaskCard({ task, collapseAll, countOfOpenChecklist, onToggle }) {
     }
   };
 
+  const onButtonClick = async (taskId, newStatus) => {
+    const response = await moveTask(taskId, newStatus);
+    if (response?.success === true) {
+      toast.success(response?.message);
+    } else {
+      toast.error("Internal Server Error");
+    }
+
+    fetchTasks();
+  };
+
   return (
-    <div className={styles.taskCard}>
+    <div onClick={() => setIsMenuOpen(false)} className={styles.taskCard}>
       <div className={styles.top}>
         <div>
           <div
@@ -66,10 +105,7 @@ function TaskCard({ task, collapseAll, countOfOpenChecklist, onToggle }) {
           ></div>
           <p>{taskPriority?.priority}</p>
         </div>
-        <div
-          className={styles.menuDots}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
+        <div className={styles.menuDots} onClick={handleMenuDotsClick}>
           <div></div>
           <div></div>
           <div></div>
@@ -106,21 +142,60 @@ function TaskCard({ task, collapseAll, countOfOpenChecklist, onToggle }) {
         </div>
       )}
 
-      <div className={styles.footer}>
-        <div className={styles.optionalDate}>Feb 10th</div>
+      <div
+        style={{ justifyContent: task?.dueDate ? "space-between" : "flex-end" }}
+        className={styles.footer}
+      >
+        {task?.dueDate && (
+          <div
+            style={{ backgroundColor, color: textColor }}
+            className={styles.optionalDate}
+          >
+            {formatDateAsMMDD(task?.dueDate)}
+          </div>
+        )}
+
         <div className={styles.buttons}>
-          <GetButtons status="todo" />
+          <GetButtons
+            taskId={task?._id}
+            buttonPressed={onButtonClick}
+            newStatus={status}
+          />
         </div>
       </div>
       {isMenuOpen ? (
         <div className={styles.menuBox}>
-          <div className={styles.edit}>Edit</div>
-          <div className={styles.share}>Share</div>
-          <div className={styles.delete}>Delete</div>
+          <div onClick={handleOpenEditModal} className={styles.edit}>
+            Edit
+          </div>
+          <div onClick={handleClickOnShare} className={styles.share}>
+            Share
+          </div>
+          <div onClick={handleOpenDeleteModal} className={styles.delete}>
+            Delete
+          </div>
         </div>
       ) : (
         <></>
       )}
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          success: {
+            style: {
+              fontSize: "1.5rem",
+              height: "2rem",
+            },
+          },
+          error: {
+            style: {
+              fontSize: "1.5rem",
+              height: "2rem",
+            },
+          },
+        }}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import BoardPage from "./pages/BoardPage/BoardPage";
 import AnalyticsPage from "./pages/AnalyticsPage/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage/SettingsPage";
+import SharedPage from "./pages/SharedPage/SharedPage";
 function App() {
   return (
     <BrowserRouter>
@@ -13,6 +14,7 @@ function App() {
         <Route path="/board" element={<BoardPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/sharedLink/:id" element={<SharedPage />} />
       </Routes>
     </BrowserRouter>
   );

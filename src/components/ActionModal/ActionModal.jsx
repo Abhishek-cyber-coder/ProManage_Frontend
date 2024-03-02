@@ -1,6 +1,6 @@
 import React from "react";
-import styles from "./LogoutModal.module.css";
-function LogoutModal({ isOpen, onClose }) {
+import styles from "./ActionModal.module.css";
+function ActionModal({ name, handleAction, isOpen, onClose }) {
   return (
     <>
       {isOpen && (
@@ -8,9 +8,11 @@ function LogoutModal({ isOpen, onClose }) {
           <div className={styles.modalBackground}></div>
           <div className={styles.modalContent}>
             <div className={styles.modalBox}>
-              <p>Are you sure you want to Logout?</p>
+              <p>Are you sure you want to {name}?</p>
               <div className={styles.buttons}>
-                <button className={styles.logoutBtn}>Yes, Logout</button>
+                <button onClick={handleAction} className={styles.logoutBtn}>
+                  Yes, {name}
+                </button>
                 <button className={styles.cancelBtn} onClick={onClose}>
                   Cancel
                 </button>
@@ -23,4 +25,4 @@ function LogoutModal({ isOpen, onClose }) {
   );
 }
 
-export default LogoutModal;
+export default ActionModal;
