@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import MyContext from "./MyContext";
 import MessageComponent from "../MessageComponent/MessageComponent";
-import { getTasks, deleteTask, getTaskDescription } from "../../apis/task";
+import { getTasks, deleteTask } from "../../apis/task";
 import { copyToClipboard } from "../../utils/helper";
 import TaskEditModal from "../TaskEditModal/TaskEditModal";
+import LoadingMessage from "../LoadingMessage/LoadingMessage";
 
 function Provider({ children }) {
   const [selectedOption, setSelectedOption] = useState("thisWeek");
@@ -13,6 +14,7 @@ function Provider({ children }) {
   const [delatableTaskId, setDeletableTaskId] = useState("");
   const [message, setMessage] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const handleOpenDeleteModal = () => {
     setIsDeleteModalOpen(true);
   };
@@ -30,12 +32,16 @@ function Provider({ children }) {
   };
 
   const fetchTasks = () => {
+    setIsLoading(true);
     getTasks(selectedOption)
       .then((data) => {
         setTasks(data);
       })
       .catch((error) => {
         console.log(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -101,6 +107,7 @@ function Provider({ children }) {
     >
       {children}
       {message && <MessageComponent message={message} />}
+      {isLoading && <LoadingMessage />}
       {
         <TaskEditModal
           isOpen={isEditModalOpen}

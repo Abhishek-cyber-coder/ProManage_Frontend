@@ -85,12 +85,7 @@ function TaskCard({
   };
 
   const onButtonClick = async (taskId, newStatus) => {
-    const response = await moveTask(taskId, newStatus);
-    if (response?.success === true) {
-      toast.success(response?.message);
-    } else {
-      toast.error("Internal Server Error");
-    }
+    await moveTask(taskId, newStatus);
 
     fetchTasks();
   };

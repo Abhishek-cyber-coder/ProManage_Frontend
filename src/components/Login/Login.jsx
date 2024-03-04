@@ -6,6 +6,7 @@ import lock from "../../assets/icons/lock.svg";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../apis/auth";
 import styles from "./Login.module.css";
+import LoadingMessage from "../LoadingMessage/LoadingMessage";
 function Login() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
@@ -15,7 +16,7 @@ function Login() {
 
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const handleChange = (e) => {
@@ -42,19 +43,24 @@ function Login() {
 
     // Submit the form if it is valid= true
     if (valid) {
-      const response = await loginUser({ ...userData });
+      setIsLoading(true);
+      try {
+        const response = await loginUser({ ...userData });
 
-      if (response?.success) {
-        localStorage.setItem("tokenPro", response.token);
-        localStorage.setItem("usernamePro", response.username);
-        toast.success(response.message);
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
-      } else if (response?.success === false) {
-        toast.error(response?.message);
-      } else {
-        toast.error("Server is not responding!");
+        if (response?.success) {
+          localStorage.setItem("tokenPro", response.token);
+          localStorage.setItem("usernamePro", response.username);
+          toast.success(response.message);
+          setTimeout(() => {
+            navigate("/");
+          }, 1000);
+        } else if (response?.success === false) {
+          toast.error(response?.message);
+        } else {
+          toast.error("Server is not responding!");
+        }
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -100,6 +106,7 @@ function Login() {
       </div>
       <div className={styles.footer}>
         <button
+          disabled={isLoading}
           onClick={handleSubmit}
           className={`${styles.loginBtn} ${styles.btn}`}
         >
@@ -108,12 +115,14 @@ function Login() {
 
         <p>Have no account yet?</p>
         <button
+          disabled={isLoading}
           className={`${styles.registerBtn} ${styles.btn}`}
           onClick={() => navigate("/register")}
         >
           Register
         </button>
       </div>
+      {isLoading && <LoadingMessage />}
       <Toaster
         position="top-center"
         reverseOrder={false}
