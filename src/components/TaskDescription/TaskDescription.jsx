@@ -36,7 +36,7 @@ function TaskDescription() {
           <img src={codeSandBoxIcon} alt="icon" />
           <p>Pro Manage</p>
         </div>
-        {!isLoading && taskData ? (
+        {!isLoading && taskData && (
           <div className={styles.taskDescriptionSection}>
             <div className={styles.taskDetailBox}>
               <div className={styles.topSection}>
@@ -69,7 +69,8 @@ function TaskDescription() {
               )}
             </div>
           </div>
-        ) : (
+        )}
+        {!isLoading && !taskData && (
           <>
             <div className={styles.error}>
               <p>Error Code 500</p>
