@@ -3,9 +3,11 @@ import styles from "./TaskDescription.module.css";
 import codeSandBoxIcon from "../../assets/icons/codeSandBox.svg";
 import { getTaskDescription } from "../../apis/task";
 import { formatDateAsMMDD } from "../../utils/helper";
+import LoadingMessage from "../LoadingMessage/LoadingMessage";
 
 function TaskDescription() {
-  const [taskData, setTaskData] = useState({});
+  const [taskData, setTaskData] = useState();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchTaskDetailsById();
@@ -15,34 +17,12 @@ function TaskDescription() {
     const taskId = window.location.pathname?.split("/").slice(-1)[0];
 
     if (!taskId) return;
-
-    const response = await getTaskDescription(taskId);
-    setTaskData(response);
-  };
-
-  const getDotColor = (priority) => {
-    switch (priority) {
-      case "low":
-        return "#63C05B";
-      case "medium":
-        return "#18B0FF";
-      case "high":
-        return "#ff2473";
-      default:
-        return "#000";
-    }
-  };
-
-  const getPriorityLabel = (priority) => {
-    switch (priority) {
-      case "low":
-        return "LOW PRIORITY";
-      case "medium":
-        return "MODERATE PRIORITY";
-      case "high":
-        return "HIGH PRIORITY";
-      default:
-        return "UNKNOWN PRIORITY";
+    setIsLoading(true);
+    try {
+      const response = await getTaskDescription(taskId);
+      setTaskData(response);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,15 +36,15 @@ function TaskDescription() {
           <img src={codeSandBoxIcon} alt="icon" />
           <p>Pro Manage</p>
         </div>
-        {taskData ? (
+        {!isLoading && taskData ? (
           <div className={styles.taskDescriptionSection}>
             <div className={styles.taskDetailBox}>
               <div className={styles.topSection}>
                 <div
-                  style={{ backgroundColor: getDotColor(taskData?.priority) }}
+                  style={{ backgroundColor: taskData?.priority?.color }}
                   className={styles.dot}
                 ></div>
-                <p>{getPriorityLabel(taskData?.priority)}</p>
+                <p>{taskData?.priority?.label}</p>
               </div>
               <div className={styles.title}>{taskData?.title}</div>
               <div className={styles.checklistSection}>
@@ -97,6 +77,7 @@ function TaskDescription() {
             </div>
           </>
         )}
+        {isLoading && <LoadingMessage />}
       </div>
     </>
   );

@@ -6,7 +6,7 @@ import CheckItem from "../CheckItem/CheckItem";
 import GetButtons from "../../utils/GetButtons";
 import { moveTask } from "../../apis/task";
 import MyContext from "../ContextApi/MyContext";
-import toast, { Toaster } from "react-hot-toast";
+
 import { calculateColors, formatDateAsMMDD } from "../../utils/helper";
 function TaskCard({
   task,
@@ -25,10 +25,7 @@ function TaskCard({
 
   const [isToggled, setIsToggled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [taskPriority, setTaskPriority] = useState({
-    color: "",
-    priority: "",
-  });
+
   const [checkedItemCount, setCheckedItemCount] = useState(0);
   const { backgroundColor, textColor } = calculateColors(
     task?.dueDate,
@@ -43,25 +40,8 @@ function TaskCard({
   const handleMenuDotsClick = (e) => {
     e.stopPropagation();
     setIsMenuOpen(true);
-    setDeletableTaskId(task._id);
+    setDeletableTaskId(task?._id);
   };
-
-  useEffect(() => {
-    const tempPriority = task?.priority;
-    switch (tempPriority) {
-      case "low":
-        setTaskPriority({ color: "#63C05B", priority: "LOW PRIORITY" });
-        break;
-      case "medium":
-        setTaskPriority({ color: "#18B0FF", priority: "MODERATE PRIORITY" });
-        break;
-      case "high":
-        setTaskPriority({ color: "#FF2473", priority: "HIGH PRIORITY" });
-        break;
-      default:
-        setTaskPriority(null);
-    }
-  }, []);
 
   useEffect(() => {
     const tempCheckedItemCount = task?.checklist?.filter(
@@ -85,7 +65,11 @@ function TaskCard({
   };
 
   const onButtonClick = async (taskId, newStatus) => {
-    await moveTask(taskId, newStatus);
+    try {
+      await moveTask(taskId, newStatus);
+    } catch (error) {
+      console.log(error);
+    }
 
     fetchTasks();
   };
@@ -95,10 +79,10 @@ function TaskCard({
       <div className={styles.top}>
         <div>
           <div
-            style={{ backgroundColor: `${taskPriority?.color}` }}
+            style={{ backgroundColor: `${task?.priority?.color}` }}
             className={styles.dot}
           ></div>
-          <p>{taskPriority?.priority}</p>
+          <p>{task?.priority?.label}</p>
         </div>
         <div className={styles.menuDots} onClick={handleMenuDotsClick}>
           <div></div>
@@ -173,24 +157,6 @@ function TaskCard({
       ) : (
         <></>
       )}
-      <Toaster
-        position="top-center"
-        reverseOrder={false}
-        toastOptions={{
-          success: {
-            style: {
-              fontSize: "1.5rem",
-              height: "2rem",
-            },
-          },
-          error: {
-            style: {
-              fontSize: "1.5rem",
-              height: "2rem",
-            },
-          },
-        }}
-      />
     </div>
   );
 }

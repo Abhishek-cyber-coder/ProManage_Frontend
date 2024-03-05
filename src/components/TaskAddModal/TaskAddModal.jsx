@@ -6,11 +6,13 @@ import "react-datepicker/dist/react-datepicker.css";
 import toast, { Toaster } from "react-hot-toast";
 import { createTask } from "../../apis/task";
 import MyContext from "../ContextApi/MyContext";
+import LoadingMessage from "../LoadingMessage/LoadingMessage";
 function TaskAddModal({ isOpen, onClose }) {
   const [title, setTitle] = useState("");
-  const [priority, setPriority] = useState("");
+  const [priority, setPriority] = useState({});
   const [checklist, setChecklist] = useState([]);
   const [dueDate, setDueDate] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { fetchTasks } = useContext(MyContext);
 
   const handleAddChecklistItem = () => {
@@ -46,25 +48,19 @@ function TaskAddModal({ isOpen, onClose }) {
 
   let valid = true;
   const handleSubmit = async () => {
-    if (!(title.trim().length > 0)) {
+    if (!(title?.trim().length > 0)) {
       valid = false;
       toast.error("Title Required");
-    } else {
-      valid = true;
     }
 
-    if (!(priority.trim().length > 0)) {
+    if (!(priority?.typeOfPriority?.trim().length > 0)) {
       valid = false;
       toast.error("Select Priority");
-    } else {
-      valid = true;
     }
 
     if (!(checklist.length > 0)) {
       valid = false;
       toast.error("Add Checklist");
-    } else {
-      valid = true;
     }
 
     if (valid) {
@@ -74,21 +70,23 @@ function TaskAddModal({ isOpen, onClose }) {
         checklist,
         dueDate,
       };
+      setIsLoading(true);
 
-      const response = await createTask(taskDetails);
-      if (response?.success === true) {
-        toast.success(response?.message);
-      } else if (response?.success === false) {
-        toast.error(response?.message);
-      } else {
-        toast.error("Internal Server Error");
+      try {
+        const response = await createTask(taskDetails);
+
+        if (response?.success === false) {
+          toast.error(response?.message);
+        }
+      } finally {
+        setTitle("");
+        setDueDate("");
+        setChecklist([]);
+        setPriority({});
+        onClose();
+        fetchTasks();
+        setIsLoading(false);
       }
-      setTitle("");
-      setDueDate("");
-      setChecklist([]);
-      setPriority("");
-      onClose();
-      fetchTasks();
     }
   };
 
@@ -117,9 +115,15 @@ function TaskAddModal({ isOpen, onClose }) {
                 </p>
                 <div
                   className={`${styles.highPriority} ${
-                    priority === "high" ? styles.selected : ""
+                    priority.typeOfPriority === "high" ? styles.selected : ""
                   }`}
-                  onClick={() => setPriority("high")}
+                  onClick={() =>
+                    setPriority({
+                      label: "HIGH PRIORITY",
+                      color: "#FF2473",
+                      typeOfPriority: "high",
+                    })
+                  }
                 >
                   <div
                     style={{ backgroundColor: "#FF2473" }}
@@ -129,9 +133,15 @@ function TaskAddModal({ isOpen, onClose }) {
                 </div>
                 <div
                   className={`${styles.medPriority} ${
-                    priority === "medium" ? styles.selected : ""
+                    priority.typeOfPriority === "medium" ? styles.selected : ""
                   }`}
-                  onClick={() => setPriority("medium")}
+                  onClick={() =>
+                    setPriority({
+                      label: "MODERATE PRIORITY",
+                      color: "#18B0FF",
+                      typeOfPriority: "medium",
+                    })
+                  }
                 >
                   <div
                     style={{ backgroundColor: "#18B0FF" }}
@@ -141,9 +151,15 @@ function TaskAddModal({ isOpen, onClose }) {
                 </div>
                 <div
                   className={`${styles.lowPriority} ${
-                    priority === "low" ? styles.selected : ""
+                    priority.typeOfPriority === "low" ? styles.selected : ""
                   }`}
-                  onClick={() => setPriority("low")}
+                  onClick={() =>
+                    setPriority({
+                      label: "LOW PRIORITY",
+                      color: "#63C05B",
+                      typeOfPriority: "low",
+                    })
+                  }
                 >
                   <div
                     style={{ backgroundColor: "#63C05B" }}
@@ -202,13 +218,18 @@ function TaskAddModal({ isOpen, onClose }) {
                   <button className={styles.cancelBtn} onClick={onClose}>
                     Cancel
                   </button>
-                  <button onClick={handleSubmit} className={styles.saveBtn}>
+                  <button
+                    disabled={isLoading}
+                    onClick={handleSubmit}
+                    className={styles.saveBtn}
+                  >
                     Save
                   </button>
                 </div>
               </div>
             </div>
           </div>
+          {isLoading && <LoadingMessage />}
           <Toaster
             position="top-center"
             reverseOrder={false}

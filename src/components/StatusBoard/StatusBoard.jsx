@@ -54,18 +54,30 @@ function StatusBoard({ tasks, heading, plusBtn }) {
           />
         </div>
       </div>
-      <div className={styles.taskCards}>
-        {tasks?.map((task) => (
-          <TaskCard
-            key={task._id}
-            task={task}
-            collapseAll={isCollapseAll}
-            countOfOpenChecklist={openChecklistCount}
-            onToggle={handleToggle}
-            status={task?.status}
-          />
-        ))}
-      </div>
+      {tasks.length > 0 ? (
+        <div className={styles.taskCards}>
+          {tasks?.map((task) => (
+            <TaskCard
+              key={task._id}
+              task={task}
+              collapseAll={isCollapseAll}
+              countOfOpenChecklist={openChecklistCount}
+              onToggle={handleToggle}
+              status={task?.status}
+            />
+          ))}
+        </div>
+      ) : heading !== "To do" ? (
+        <div className={styles.alternateMessg}>
+          Click the buttons located at the bottom of each card to move them
+          here...
+        </div>
+      ) : (
+        <div className={styles.alternateMessg}>
+          Click on "<strong>+</strong>" button to add a new task...
+        </div>
+      )}
+
       <TaskAddModal isOpen={isModalOpen} onClose={handleCloseModal} />
     </div>
   );

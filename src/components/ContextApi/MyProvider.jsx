@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import MyContext from "./MyContext";
 import MessageComponent from "../MessageComponent/MessageComponent";
-import { getTasks, deleteTask } from "../../apis/task";
+import { getTasks, deleteTask, getTaskDescription } from "../../apis/task";
 import { copyToClipboard } from "../../utils/helper";
 import TaskEditModal from "../TaskEditModal/TaskEditModal";
 import LoadingMessage from "../LoadingMessage/LoadingMessage";
@@ -15,6 +15,11 @@ function Provider({ children }) {
   const [message, setMessage] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState({});
+  const [checklist, setChecklist] = useState([]);
+  const [status, setStatus] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const handleOpenDeleteModal = () => {
     setIsDeleteModalOpen(true);
   };
@@ -25,6 +30,7 @@ function Provider({ children }) {
 
   const handleOpenEditModal = () => {
     setIsEditModalOpen(true);
+    fetchTaskDetailsById();
   };
 
   const handleCloseEditModal = () => {
@@ -45,9 +51,23 @@ function Provider({ children }) {
       });
   };
 
+  const fetchTaskDetailsById = async () => {
+    const taskId = delatableTaskId;
+
+    if (!taskId) return;
+
+    const response = await getTaskDescription(taskId);
+    setTitle(response?.title);
+    setPriority(response?.priority);
+    setChecklist(response?.checklist);
+    console.log(response?.status);
+    setDueDate(response?.dueDate);
+    setStatus(response?.status);
+  };
+
   const deleteTaskToast = () => {
     toast.success("Task deleted successfully", {
-      duration: 2000,
+      duration: 1000,
       position: "top-center",
     });
   };
@@ -103,6 +123,15 @@ function Provider({ children }) {
         setDeletableTaskId,
         handleClickOnShare,
         handleOpenEditModal,
+        title,
+        setTitle,
+        priority,
+        setPriority,
+        checklist,
+        setChecklist,
+        status,
+        dueDate,
+        setDueDate,
       }}
     >
       {children}

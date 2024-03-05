@@ -54,3 +54,12 @@
   gap: 1rem;
   margin-right: 5px;
 }
+
+.alternateMessg {
+  margin-top: 1rem;
+  font-family: var(--poppins-fontFamily);
+  font-weight: 500;
+  font-size: 2rem;
+  margin-left: 2px;
+  color: rgb(0 0 0 / 23%);
+}

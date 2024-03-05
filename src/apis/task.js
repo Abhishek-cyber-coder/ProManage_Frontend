@@ -76,11 +76,13 @@ export const moveTask = async (taskId, status) => {
   try {
     const requestUrl = `${backendUrl}/${taskId}/move`;
     const payload = { status };
+
     const token = localStorage.getItem("tokenPro");
 
     axios.defaults.headers.common["Authorization"] = token;
 
     const response = await axios.put(requestUrl, payload);
+
     return response?.data;
   } catch (error) {
     console.log(error);

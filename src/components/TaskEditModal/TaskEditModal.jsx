@@ -4,36 +4,25 @@ import deleteIcon from "../../assets/icons/delete.svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast, { Toaster } from "react-hot-toast";
-import { editTaskById, getTaskDescription } from "../../apis/task";
+import { editTaskById } from "../../apis/task";
+import LoadingMessage from "../LoadingMessage/LoadingMessage";
 import MyContext from "../ContextApi/MyContext";
 function TaskEditModal({ isOpen, onClose }) {
-  const [loading, setLoading] = useState(true);
-  const [title, setTitle] = useState("");
-  const [priority, setPriority] = useState("");
-  const [checklist, setChecklist] = useState([]);
-  const [status, setStatus] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const { fetchTasks, delatableTaskId } = useContext(MyContext);
+  const [isTaskUpdating, setIsTaskUpdating] = useState(false);
 
-  useEffect(() => {
-    fetchTaskDetailsById();
-  }, [delatableTaskId]);
-
-  const fetchTaskDetailsById = async () => {
-    const taskId = delatableTaskId;
-
-    if (!taskId) return;
-
-    const response = await getTaskDescription(taskId);
-    setTitle(response?.title);
-    setPriority(response?.priority);
-    setChecklist(response?.checklist);
-    setDueDate(response?.dueDate);
-    setStatus(response?.status);
-    setLoading(false);
-
-    if (!isOpen || loading) return null;
-  };
+  const {
+    title,
+    setTitle,
+    status,
+    priority,
+    setPriority,
+    checklist,
+    setChecklist,
+    dueDate,
+    setDueDate,
+    fetchTasks,
+    delatableTaskId,
+  } = useContext(MyContext);
 
   const handleAddChecklistItem = () => {
     const newItem = { name: "", selected: false };
@@ -68,45 +57,41 @@ function TaskEditModal({ isOpen, onClose }) {
 
   let valid = true;
   const handleSubmit = async () => {
-    if (!(title.trim().length > 0)) {
+    if (!(title?.trim().length > 0)) {
       valid = false;
       toast.error("Title Required");
-    } else {
-      valid = true;
     }
 
-    if (!(priority.trim().length > 0)) {
+    if (!(priority?.typeOfPriority?.trim().length > 0)) {
       valid = false;
       toast.error("Select Priority");
-    } else {
-      valid = true;
     }
 
-    if (!(checklist.length > 0)) {
+    if (!(checklist?.length > 0)) {
       valid = false;
       toast.error("Add Checklist");
-    } else {
-      valid = true;
     }
 
     if (valid) {
-      const response = await editTaskById(
-        delatableTaskId,
-        title,
-        priority,
-        checklist,
-        status,
-        dueDate
-      );
-      if (response?.success === true) {
-        toast.success(response?.message);
-      } else if (response?.success === false) {
-        toast.error(response?.message);
-      } else {
-        toast.error("Internal Server Error");
+      setIsTaskUpdating(true);
+      try {
+        const response = await editTaskById(
+          delatableTaskId,
+          title,
+          priority,
+          checklist,
+          status,
+          dueDate
+        );
+
+        if (response?.success === false) {
+          toast.error(response?.message);
+        }
+      } finally {
+        fetchTasks();
+        onClose();
+        setIsTaskUpdating(false);
       }
-      onClose();
-      fetchTasks();
     }
   };
 
@@ -135,9 +120,15 @@ function TaskEditModal({ isOpen, onClose }) {
                 </p>
                 <div
                   className={`${styles.highPriority} ${
-                    priority === "high" ? styles.selected : ""
+                    priority.typeOfPriority === "high" ? styles.selected : ""
                   }`}
-                  onClick={() => setPriority("high")}
+                  onClick={() =>
+                    setPriority({
+                      label: "HIGH PRIORITY",
+                      color: "#FF2473",
+                      typeOfPriority: "high",
+                    })
+                  }
                 >
                   <div
                     style={{ backgroundColor: "#FF2473" }}
@@ -147,9 +138,15 @@ function TaskEditModal({ isOpen, onClose }) {
                 </div>
                 <div
                   className={`${styles.medPriority} ${
-                    priority === "medium" ? styles.selected : ""
+                    priority.typeOfPriority === "medium" ? styles.selected : ""
                   }`}
-                  onClick={() => setPriority("medium")}
+                  onClick={() =>
+                    setPriority({
+                      label: "MODERATE PRIORITY",
+                      color: "#18B0FF",
+                      typeOfPriority: "medium",
+                    })
+                  }
                 >
                   <div
                     style={{ backgroundColor: "#18B0FF" }}
@@ -159,9 +156,15 @@ function TaskEditModal({ isOpen, onClose }) {
                 </div>
                 <div
                   className={`${styles.lowPriority} ${
-                    priority === "low" ? styles.selected : ""
+                    priority.typeOfPriority === "low" ? styles.selected : ""
                   }`}
-                  onClick={() => setPriority("low")}
+                  onClick={() =>
+                    setPriority({
+                      label: "LOW PRIORITY",
+                      color: "#63C05B",
+                      typeOfPriority: "low",
+                    })
+                  }
                 >
                   <div
                     style={{ backgroundColor: "#63C05B" }}
@@ -220,13 +223,18 @@ function TaskEditModal({ isOpen, onClose }) {
                   <button className={styles.cancelBtn} onClick={onClose}>
                     Cancel
                   </button>
-                  <button onClick={handleSubmit} className={styles.saveBtn}>
+                  <button
+                    disabled={isTaskUpdating}
+                    onClick={handleSubmit}
+                    className={styles.saveBtn}
+                  >
                     Save
                   </button>
                 </div>
               </div>
             </div>
           </div>
+          {isTaskUpdating && <LoadingMessage />}
           <Toaster
             position="top-center"
             reverseOrder={false}
